@@ -21,7 +21,7 @@ O jogo utiliza dois algoritmos clássicos de Divisão e Conquista para resolver 
 * **Gráficos e Janela:** Raylib
 * **Build System:** CMake
 
-## > --- | Como vai funcionar a Compilação e Executação | --- <
+## > --- | Como vai funcionar a Compilação e Execução | --- <
 
 ### Pré-requisitos
 * Compilador C++ (ex: GCC ou Clang)
