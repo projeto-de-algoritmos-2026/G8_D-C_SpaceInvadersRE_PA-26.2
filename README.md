@@ -38,17 +38,45 @@ O jogo utiliza dois algoritmos clássicos de Divisão e Conquista para resolver 
 | `CMakeLists.txt` | Script de orquestração do compilador. Define a versão do C++, trata do descarregamento automático do Raylib (*FetchContent*) e compila os binários. |
 | `.gitignore` | Protege o repositório impedindo que o diretório `build/` e outros ficheiros gerados localmente sejam comitados acidentalmente. |
 
+O Nix não possui suporte nativo direto para Windows, mas funciona perfeitamente lá através do **WSL2** (Windows Subsystem for Linux). Utilizadores de Windows com WSL2 podem rodar o comando `nix-shell` e abrir a janela gráfica do Raylib perfeitamente graças ao suporte GUI integrado do Windows 11 (WSLg).
+
+No entanto, a grande vantagem da arquitetura que montámos com o `CMake` + `FetchContent` é que o seu projeto **já é compatível com Windows nativo**! Um utilizador de Windows não precisa do Nix; basta ter o Visual Studio (MSVC) ou o MinGW instalados, e o CMake tratará de baixar o Raylib sozinho.
+
+Para documentar todas estas facilidades e deixar o projeto extremamente acessível, substitua a secção **"Como vai funcionar a Compilação e Execução"** do seu `README.md` por esta versão atualizada:
+
 ## > --- | Como vai funcionar a Compilação e Execução | --- <
 
 ### Pré-requisitos
-- Compilador C++ (ex: GCC ou Clang)
-- CMake
-- Raylib (será obtida via FetchContent no CMake)
+- Compilador C++20 (GCC, Clang ou MSVC)
+- CMake (v3.16+)
+- Raylib (obtida dinamicamente via FetchContent no CMake)
 
-### Compilação (Linux)
+### 🐧 Compilação (Linux Nativo)
 Abra o terminal na raiz do projeto e execute:
 ```bash
 cmake -B build
 cmake --build build
 ./build/space_invaders_dc
+
+```
+
+### ❄️ Compilação (NixOS / Nix via WSL2 no Windows)
+
+Para utilizadores de NixOS ou Windows rodando WSL2, o projeto inclui um ambiente de desenvolvimento reprodutível (`shell.nix`) com todas as dependências gráficas do X11/Wayland configuradas.
+
+```bash
+nix-shell
+cmake -B build
+cmake --build build
+./build/space_invaders_dc
+```
+
+### 🪟 Compilação (Windows Nativo)
+
+Graças à orquestração do CMake, o projeto compila nativamente no Windows. Pode abrir a pasta no **Visual Studio 2022** (que deteta o CMake automaticamente) ou usar o terminal (via Developer Command Prompt):
+
+```cmd
+cmake -B build
+cmake --build build
+.\build\Debug\space_invaders_dc.exe
 ```
