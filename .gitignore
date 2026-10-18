@@ -1,0 +1,27 @@
+# Pastas de Build (CMake)
+build/
+build_web/
+out/
+bin/
+
+# Ficheiros gerados pelo CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+_deps/
+
+# Ficheiros de IDEs e Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Binários e ficheiros do Sistema Operativo
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+.DS_Store
