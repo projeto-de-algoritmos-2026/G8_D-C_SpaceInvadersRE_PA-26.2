@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include "entities/fleet.hpp"
 #include "algorithms/algorithms.hpp"
+#include "entities/player.hpp"
 
 int main() {
     const int screen_width = 1280;
@@ -12,7 +13,12 @@ int main() {
     space_invaders::entities::Fleet enemy_fleet;
     enemy_fleet.generate_fleet(10, 25, 100.0f, 60.0f, 45.0f, 35.0f);
 
+    space_invaders::entities::Player player((screen_width / 2.0f) - 25.0f, (float)screen_height - 80.0f, 50.0f, 25.0f, 400.0f);
+
     while (!WindowShouldClose()) {
+
+        // --- Atualização ---
+        player.update((float)(screen_width));
 
         // Obtém a referência do vetor para passar aos algoritmos
         auto& invaders = enemy_fleet.get_invaders();
@@ -26,6 +32,8 @@ int main() {
         ClearBackground(BLACK);
 
         enemy_fleet.draw();
+
+        player.draw();
 
         // Destaca a nave comandante (se encontrada e viva)
         if (commander != nullptr && commander->is_alive) {
@@ -60,6 +68,9 @@ int main() {
             // apenas para testar depois remover e deixar apenas o contorno
             DrawText("PAR MAIS PROXIMO", (int)p1->x, (int)p1->y - 15, 9, BLUE);
         }
+
+        DrawText(TextFormat("Naves Ativas: %d", (int)invaders.size()), 10, 10, 20, LIME);
+        DrawText("USE AS SETAS OU 'A'/'D' PARA MOVER A NAVE", 10, 40, 14, GRAY);
 
         EndDrawing();
     }
