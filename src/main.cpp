@@ -35,11 +35,11 @@ int main() {
                 2.0f,
                 PURPLE
             );
-            DrawText("ALVO: COMANDANTE", (int)commander->x - 30, (int)commander->y - 20, 10, PURPLE);
+            // apenas para testar depois remover e deixar apenas o contorno
+            DrawText("ALVO: COMANDANTE", (int)commander->x - 30, (int)commander->y - 15, 9, PURPLE);
         }
 
         DrawText(TextFormat("Naves Ativas: %d", (int)invaders.size()), 10, 10, 20, LIME);
-        DrawText("STUB ALGORITMOS: ATIVO", 10, 35, 14, PURPLE);
 
         // Destaca as duas naves do Par Mais Próximo (se existirem e estiverem vivas)
         if (closest_pair.first != nullptr && closest_pair.second != nullptr) {
@@ -57,7 +57,8 @@ int main() {
                 2.0f,
                 BLUE
             );
-            DrawText("PAR MAIS PROXIMO", (int)p1->x, (int)p1->y - 20, 10, BLUE);
+            // apenas para testar depois remover e deixar apenas o contorno
+            DrawText("PAR MAIS PROXIMO", (int)p1->x, (int)p1->y - 15, 9, BLUE);
         }
 
         EndDrawing();
