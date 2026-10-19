@@ -4,9 +4,9 @@ namespace space_invaders::entities {
 
     enum class InvaderType {
         // valores temporarios sera preciso definir os tipos depois
-        ALPHA,
-        BETA,
-        GAMMA
+        ALPHA, // vermelho
+        BETA, // laranja
+        GAMMA // amarelo
     };
 
 
@@ -18,6 +18,7 @@ namespace space_invaders::entities {
         // valores temporarios
         float width = 30.0f;
         float height = 20.0f;
+        void draw() const;
     };
 
 }
