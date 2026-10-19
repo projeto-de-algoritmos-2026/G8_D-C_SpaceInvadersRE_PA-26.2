@@ -1,36 +1,64 @@
 #include <raylib.h>
 #include "entities/fleet.hpp"
+#include "algorithms/algorithms.hpp"
 
 int main() {
-    // Inicialização da janela
     const int screen_width = 1280;
     const int screen_height = 720;
 
     InitWindow(screen_width, screen_height, "Space Invaders: Dividir e Conquistar");
     SetTargetFPS(60);
 
-    // Instancia a frota inimiga
     space_invaders::entities::Fleet enemy_fleet;
-
-    // Configura uma frota com 10 linhas e 25 colunas (250 entidades na tela)
     enemy_fleet.generate_fleet(10, 25, 100.0f, 60.0f, 45.0f, 35.0f);
 
-    // Loop Principal
     while (!WindowShouldClose()) {
 
-        // --- Atualização (Lógica) ---
-        // TODO: Atualizar posições da frota e interagir com algoritmos de Divisão e Conquista
+        // Obtém a referência do vetor para passar aos algoritmos
+        auto& invaders = enemy_fleet.get_invaders();
+
+        // Executa os algoritmos de Divisão e Conquista
+        auto* commander = space_invaders::algorithms::find_commander(invaders);
+        auto closest_pair = space_invaders::algorithms::find_closest_pair(invaders);
 
         // --- Renderização (Desenho) ---
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // Desenha a frota inimiga
         enemy_fleet.draw();
 
-        // Informação temporária na interface
-        DrawText(TextFormat("Naves Ativas: %d", (int)enemy_fleet.get_invaders().size()), 10, 10, 20, LIME);
-        DrawText("AGUARDANDO ALGORITMO MEDIANA DAS MEDIANAS...", 10, 35, 14, GRAY);
+        // Destaca a nave comandante (se encontrada e viva)
+        if (commander != nullptr && commander->is_alive) {
+            // Desenha um quadrado de mira em volta da nave
+            DrawRectangleLinesEx(
+                Rectangle{commander->x - 5, commander->y - 5, commander->width + 10, commander->height + 10},
+                2.0f,
+                PURPLE
+            );
+            DrawText("ALVO: COMANDANTE", (int)commander->x - 30, (int)commander->y - 20, 10, PURPLE);
+        }
+
+        DrawText(TextFormat("Naves Ativas: %d", (int)invaders.size()), 10, 10, 20, LIME);
+        DrawText("STUB ALGORITMOS: ATIVO", 10, 35, 14, PURPLE);
+
+        // Destaca as duas naves do Par Mais Próximo (se existirem e estiverem vivas)
+        if (closest_pair.first != nullptr && closest_pair.second != nullptr) {
+            auto* p1 = closest_pair.first;
+            auto* p2 = closest_pair.second;
+
+            // Caixas de mira em ciano para as duas naves
+            DrawRectangleLinesEx(Rectangle{p1->x - 5, p1->y - 5, p1->width + 10, p1->height + 10}, 2.0f, BLUE);
+            DrawRectangleLinesEx(Rectangle{p2->x - 5, p2->y - 5, p2->width + 10, p2->height + 10}, 2.0f, BLUE);
+
+            // Desenha uma linha a conectar os centros das duas naves
+            DrawLineEx(
+                Vector2{p1->x + p1->width/2, p1->y + p1->height/2},
+                Vector2{p2->x + p2->width/2, p2->y + p2->height/2},
+                2.0f,
+                BLUE
+            );
+            DrawText("PAR MAIS PROXIMO", (int)p1->x, (int)p1->y - 20, 10, BLUE);
+        }
 
         EndDrawing();
     }
