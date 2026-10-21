@@ -28,38 +28,44 @@ namespace space_invaders::entities {
     void Fleet::update(float screen_width) {
         if (invaders.empty()) return;
 
+        // Acumula o tempo que passou desde o último frame
         float dt = GetFrameTime();
-        float dx = speed_x * direction * dt;
+        move_timer += dt;
 
-        bool hit_edge = false;
-        float margin = 20.0f;
+        // Só vai movimentar quando der o intervalo
+        if (move_timer >= move_interval) {
+            move_timer = 0.0f; // Reinicia o timer para o próximo salto
 
-        // Assume que a largura é igual para todas as naves
-        float invader_width = invaders.front().width;
+            float dx = step_x * direction;
+            bool hit_edge = false;
+            float margin = 20.0f;
+            float invader_width = invaders.front().width;
 
-        // 1. Verificação de limites olhando apenas para as naves VIVAS
-        for (const auto& ship : invaders) {
-            if (!ship.is_alive) continue;
+            // 1. Verifica se a frota antingiu a borda
+            // direction = 1 = mover pra direita e = -1 é o mesmo que mexer pra esquerda
+            for (const auto& ship : invaders) {
+                if (!ship.is_alive) continue;
 
-            if (direction == 1 && (ship.x + invader_width + dx > screen_width - margin)) {
-                hit_edge = true;
-                break;
+                if (direction == 1 && (ship.x + invader_width + dx > screen_width - margin)) {
+                    hit_edge = true;
+                    break;
+                }
+                else if (direction == -1 && (ship.x + dx < margin)) {
+                    hit_edge = true;
+                    break;
+                }
             }
-            else if (direction == -1 && (ship.x + dx < margin)) {
-                hit_edge = true;
-                break;
-            }
-        }
 
-        // 2. Aplicação do movimento (Shift Down ou Movimento Lateral contínuo)
-        if (hit_edge) {
-            direction *= -1; // Inverte o eixo X
-            for (auto& ship : invaders) {
-                ship.y += drop_distance;
-            }
-        } else {
-            for (auto& ship : invaders) {
-                ship.x += dx;
+            // Salto da nave
+            if (hit_edge) {
+                direction *= -1;
+                for (auto& ship : invaders) {
+                    ship.y += drop_distance;
+                }
+            } else {
+                for (auto& ship : invaders) {
+                    ship.x += dx;
+                }
             }
         }
     }
