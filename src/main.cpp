@@ -19,7 +19,8 @@ int main() {
 
         // --- Atualização ---
         player.update((float)(screen_width));
-        enemy_fleet.update((float)(screen_width));
+        float fleet_bottom_limit = player.get_position().y - 10.0f;
+        enemy_fleet.update((float)(screen_width), fleet_bottom_limit);
 
         // Obtém a referência do vetor para passar aos algoritmos
         auto& invaders = enemy_fleet.get_invaders();

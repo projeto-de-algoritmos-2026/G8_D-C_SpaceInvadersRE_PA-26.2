@@ -25,7 +25,7 @@ namespace space_invaders::entities {
         }
     }
 
-    void Fleet::update(float screen_width) {
+    void Fleet::update(float screen_width, float bottom_limit) {
         if (invaders.empty()) return;
 
         // Acumula o tempo que passou desde o último frame
@@ -40,6 +40,7 @@ namespace space_invaders::entities {
             bool hit_edge = false;
             float margin = 20.0f;
             float invader_width = invaders.front().width;
+            float invader_height = invaders.front().height;
 
             // 1. Verifica se a frota antingiu a borda
             // direction = 1 = mover pra direita e = -1 é o mesmo que mexer pra esquerda
@@ -59,8 +60,16 @@ namespace space_invaders::entities {
             // Salto da nave
             if (hit_edge) {
                 direction *= -1;
-                for (auto& ship : invaders) {
-                    ship.y += drop_distance;
+                float lowest_y = 0.0f;
+                for (const auto& ship : invaders) {
+                    if (ship.is_alive && (ship.y + invader_height > lowest_y)) {
+                        lowest_y = ship.y + invader_height;
+                    }
+                }
+                if (lowest_y + drop_distance <= bottom_limit) {
+                    for (auto& ship : invaders) {
+                        ship.y += drop_distance;
+                    }
                 }
             } else {
                 for (auto& ship : invaders) {

@@ -12,14 +12,14 @@ namespace space_invaders::entities {
         float drop_distance = 20.0f;  // Quantidade de pixels que a frota desce ao bater na borda
 
         float move_timer = 0.0f;      // Quanto tempo ja passou desde o último intervalo
-        float move_interval = 0.5f;   // Intervalo entre cada salto
+        float move_interval = 0.0f;   // Intervalo entre cada salto
 
     public:
         Fleet();
         ~Fleet() = default;
         void generate_fleet(int rows, int cols, float start_x, float start_y, float spacing_x, float spacing_y);
 
-        void update(float screen_width);
+        void update(float screen_width, float bottom_limit);
 
         void draw() const;
 
