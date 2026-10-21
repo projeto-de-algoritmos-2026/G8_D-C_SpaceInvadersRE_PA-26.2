@@ -11,6 +11,11 @@ namespace space_invaders::entities {
         invaders.clear();
         invaders.reserve(rows * cols);
 
+        // Reset das variáveis de estado caso a frota seja regerada
+        is_frozen = false;
+        direction = 1;
+        move_timer = 0.0f;
+
         for (int r = 0; r < rows; ++r) {
             for (int c = 0; c < cols; ++c) {
                 Invader ship;
@@ -26,7 +31,8 @@ namespace space_invaders::entities {
     }
 
     void Fleet::update(float screen_width, float bottom_limit) {
-        if (invaders.empty()) return;
+        // se não há mais naves ou os aliens atingiram o chão a frota não precisa se mover
+        if (invaders.empty() || is_frozen) return;
 
         // Acumula o tempo que passou desde o último frame
         float dt = GetFrameTime();
@@ -70,6 +76,10 @@ namespace space_invaders::entities {
                     for (auto& ship : invaders) {
                         ship.y += drop_distance;
                     }
+                } else {
+                    // Game over os aliens chegaram na base, a frota para de se mexer
+
+                    is_frozen = true;
                 }
             } else {
                 for (auto& ship : invaders) {
