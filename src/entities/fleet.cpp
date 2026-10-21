@@ -1,5 +1,7 @@
 #include "entities/fleet.hpp"
 
+#include "raylib.h"
+
 namespace space_invaders::entities {
 
     Fleet::Fleet() {}
@@ -19,6 +21,45 @@ namespace space_invaders::entities {
                 ship.type = static_cast<InvaderType>(r % 3);
 
                 invaders.push_back(ship);
+            }
+        }
+    }
+
+    void Fleet::update(float screen_width) {
+        if (invaders.empty()) return;
+
+        float dt = GetFrameTime();
+        float dx = speed_x * direction * dt;
+
+        bool hit_edge = false;
+        float margin = 20.0f;
+
+        // Assume que a largura é igual para todas as naves
+        float invader_width = invaders.front().width;
+
+        // 1. Verificação de limites olhando apenas para as naves VIVAS
+        for (const auto& ship : invaders) {
+            if (!ship.is_alive) continue;
+
+            if (direction == 1 && (ship.x + invader_width + dx > screen_width - margin)) {
+                hit_edge = true;
+                break;
+            }
+            else if (direction == -1 && (ship.x + dx < margin)) {
+                hit_edge = true;
+                break;
+            }
+        }
+
+        // 2. Aplicação do movimento (Shift Down ou Movimento Lateral contínuo)
+        if (hit_edge) {
+            direction *= -1; // Inverte o eixo X
+            for (auto& ship : invaders) {
+                ship.y += drop_distance;
+            }
+        } else {
+            for (auto& ship : invaders) {
+                ship.x += dx;
             }
         }
     }
