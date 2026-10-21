@@ -19,6 +19,7 @@ int main() {
 
         // --- Atualização ---
         player.update((float)(screen_width));
+        enemy_fleet.update((float)(screen_width));
 
         // Obtém a referência do vetor para passar aos algoritmos
         auto& invaders = enemy_fleet.get_invaders();
@@ -30,7 +31,6 @@ int main() {
         // --- Renderização (Desenho) ---
         BeginDrawing();
         ClearBackground(BLACK);
-
         enemy_fleet.draw();
 
         player.draw();
