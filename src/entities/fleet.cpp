@@ -1,5 +1,7 @@
 #include "entities/fleet.hpp"
 
+#include "raylib.h"
+
 namespace space_invaders::entities {
 
     Fleet::Fleet() {}
@@ -8,6 +10,11 @@ namespace space_invaders::entities {
         // LImpeza e reserva de memória
         invaders.clear();
         invaders.reserve(rows * cols);
+
+        // Reset das variáveis de estado caso a frota seja regerada
+        is_frozen = false;
+        direction = 1;
+        move_timer = 0.0f;
 
         for (int r = 0; r < rows; ++r) {
             for (int c = 0; c < cols; ++c) {
@@ -19,6 +26,65 @@ namespace space_invaders::entities {
                 ship.type = static_cast<InvaderType>(r % 3);
 
                 invaders.push_back(ship);
+            }
+        }
+    }
+
+    void Fleet::update(float screen_width, float bottom_limit) {
+        // se não há mais naves ou os aliens atingiram o chão a frota não precisa se mover
+        if (invaders.empty() || is_frozen) return;
+
+        // Acumula o tempo que passou desde o último frame
+        float dt = GetFrameTime();
+        move_timer += dt;
+
+        // Só vai movimentar quando der o intervalo
+        if (move_timer >= move_interval) {
+            move_timer = 0.0f; // Reinicia o timer para o próximo salto
+
+            float dx = step_x * direction;
+            bool hit_edge = false;
+            float margin = 20.0f;
+            float invader_width = invaders.front().width;
+            float invader_height = invaders.front().height;
+
+            // 1. Verifica se a frota antingiu a borda
+            // direction = 1 = mover pra direita e = -1 é o mesmo que mexer pra esquerda
+            for (const auto& ship : invaders) {
+                if (!ship.is_alive) continue;
+
+                if (direction == 1 && (ship.x + invader_width + dx > screen_width - margin)) {
+                    hit_edge = true;
+                    break;
+                }
+                else if (direction == -1 && (ship.x + dx < margin)) {
+                    hit_edge = true;
+                    break;
+                }
+            }
+
+            // Salto da nave
+            if (hit_edge) {
+                direction *= -1;
+                float lowest_y = 0.0f;
+                for (const auto& ship : invaders) {
+                    if (ship.is_alive && (ship.y + invader_height > lowest_y)) {
+                        lowest_y = ship.y + invader_height;
+                    }
+                }
+                if (lowest_y + drop_distance <= bottom_limit) {
+                    for (auto& ship : invaders) {
+                        ship.y += drop_distance;
+                    }
+                } else {
+                    // Game over os aliens chegaram na base, a frota para de se mexer
+
+                    is_frozen = true;
+                }
+            } else {
+                for (auto& ship : invaders) {
+                    ship.x += dx;
+                }
             }
         }
     }
