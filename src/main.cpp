@@ -14,16 +14,31 @@ int main() {
     enemy_fleet.generate_fleet(10, 25, 100.0f, 60.0f, 45.0f, 35.0f);
 
     space_invaders::entities::Player player((screen_width / 2.0f) - 25.0f, (float)screen_height - 80.0f, 50.0f, 25.0f, 400.0f);
+    std::vector<space_invaders::entities::Projectile> player_projectiles;
 
     while (!WindowShouldClose()) {
 
         // --- Atualização ---
-        player.update((float)(screen_width));
+
+        auto new_shot = player.update((float)(screen_width));
+        // Garante que não serão inseridos elementos nulos
+        if (new_shot.has_value()) {
+            player_projectiles.push_back(new_shot.value());
+        }
+
+        // Atualização do cooldown dos projeteis
+        float dt = GetFrameTime();
+        for (auto& p : player_projectiles) {
+            p.update(dt);
+        }
+        std::erase_if(player_projectiles, [](const auto& p) { return !p.is_active; });
         float fleet_bottom_limit = player.get_position().y - 10.0f;
         enemy_fleet.update((float)(screen_width), fleet_bottom_limit);
 
         // Obtém a referência do vetor para passar aos algoritmos
         auto& invaders = enemy_fleet.get_invaders();
+
+
 
         // Executa os algoritmos de Divisão e Conquista
         auto* commander = space_invaders::algorithms::find_commander(invaders);
@@ -35,6 +50,9 @@ int main() {
         enemy_fleet.draw();
 
         player.draw();
+        for (const auto& p : player_projectiles) {
+            p.draw();
+        }
 
         // Destaca a nave comandante (se encontrada e viva)
         if (commander != nullptr && commander->is_alive) {
