@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <algorithm>
 #include "entities/fleet.hpp"
 #include "algorithms/algorithms.hpp"
 #include "entities/player.hpp"
@@ -26,7 +27,7 @@ int main() {
             player_projectiles.push_back(new_shot.value());
         }
 
-        // Atualização do cooldown dos projeteis
+        // Atualização do cooldown dos projéteis
         float dt = GetFrameTime();
         for (auto& p : player_projectiles) {
             p.update(dt);
@@ -38,7 +39,23 @@ int main() {
         // Obtém a referência do vetor para passar aos algoritmos
         auto& invaders = enemy_fleet.get_invaders();
 
+        for (auto& p : player_projectiles) {
+            if (!p.is_active) continue; // Ignora tiros já desativados nesta frame
 
+            for (auto& invader : invaders) {
+                if (!invader.is_alive) continue; // Ignora naves já destruídas
+
+                // Cria os retângulos de colisão
+                Rectangle proj_rect = {p.x, p.y, p.width, p.height};
+                Rectangle inv_rect = {invader.x, invader.y, invader.width, invader.height};
+
+                if (CheckCollisionRecs(proj_rect, inv_rect)) {
+                    invader.is_alive = false; // Destrói a nave
+                    p.is_active = false;      // Destrói o tiro
+                    break; // O tiro já atingiu um alvo, avança para o próximo tiro
+                }
+            }
+        }
 
         // Executa os algoritmos de Divisão e Conquista
         auto* commander = space_invaders::algorithms::find_commander(invaders);
@@ -66,7 +83,6 @@ int main() {
             DrawText("ALVO: COMANDANTE", (int)commander->x - 30, (int)commander->y - 15, 9, PURPLE);
         }
 
-        DrawText(TextFormat("Naves Ativas: %d", (int)invaders.size()), 10, 10, 20, LIME);
 
         // Destaca as duas naves do Par Mais Próximo (se existirem e estiverem vivas)
         if (closest_pair.first != nullptr && closest_pair.second != nullptr) {
@@ -88,7 +104,12 @@ int main() {
             DrawText("PAR MAIS PROXIMO", (int)p1->x, (int)p1->y - 15, 9, BLUE);
         }
 
-        DrawText(TextFormat("Naves Ativas: %d", (int)invaders.size()), 10, 10, 20, LIME);
+        // Calcula dinamicamente quantas naves continuam com is_alive = true
+        int active_ships = static_cast<int>(std::count_if(invaders.begin(), invaders.end(), [](const auto& ship) {
+            return ship.is_alive;
+        }));
+
+        DrawText(TextFormat("Naves Ativas: %d", active_ships), 10, 10, 20, LIME);
         DrawText("USE AS SETAS OU 'A'/'D' PARA MOVER A NAVE", 10, 40, 14, GRAY);
 
         EndDrawing();
