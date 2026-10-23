@@ -4,7 +4,7 @@ namespace space_invaders::entities {
     Player::Player(float x, float y, float width, float height, float speed)
         : position{x, y}, size{width, height}, speed(speed), color(WHITE) {}
 
-    void Player::update(float screen_width) {
+    std::optional<Projectile> Player::update(float screen_width) {
         float dt = GetFrameTime();
 
         if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
@@ -21,6 +21,19 @@ namespace space_invaders::entities {
         if (position.x + size.x > screen_width - margin) {
             position.x = screen_width - margin - size.x;
         }
+
+        // --- Disparo (Input e Cooldown) ---
+        time_since_last_shot += dt;
+        // retorna o projetio para o vetor da main caso houver disparo
+        if (IsKeyPressed(KEY_SPACE) && time_since_last_shot >= shoot_cooldown) {
+            time_since_last_shot = 0.0f;
+
+            Projectile p;
+            p.x = position.x + (size.x / 2.0f) - (p.width / 2.0f);
+            p.y = position.y;
+            return p;
+        }
+        return std::nullopt; // se não houve projetio retorna nulo
     }
 
     void Player::draw() const {
